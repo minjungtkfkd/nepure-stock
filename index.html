@@ -84,13 +84,18 @@
         .close-btn { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
         .excel-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; font-family: 'Malgun Gothic', 'Pretendard', sans-serif; }
-        .excel-table th, .excel-table td { border: 1px solid #000000; padding: 5px 8px; }
+        .excel-table th, .excel-table td { border: 1px solid #64748b; padding: 6px 8px; }
         .excel-th-name { background-color: #d9ead3; text-align: center; font-weight: bold; width: 70%; }
         .excel-th-stock { background-color: #f4ccd0; text-align: center; font-weight: bold; width: 30%; }
         
-        .row-nepure { background-color: #f3e8f4; }
-        .row-ato { background-color: #d9ead3; }
-        .row-subtotal { background-color: #00a2e8; font-weight: bold; color: #000000; }
+        /* 카테고리별 엑셀 표 행 배경색 */
+        .row-p60     { background-color: #e0f2fe; } /* 프리미엄(60매) - 연한 파랑 */
+        .row-p10     { background-color: #dcfce7; } /* 프리미엄(10매) - 연한 초록 */
+        .row-nepure  { background-color: #ffedd5; } /* 네퓨어(60매) - 연한 주황 */
+        .row-ato     { background-color: #fef9c3; } /* 아토(60매) - 연한 노랑 */
+        .row-dust    { background-color: #f3e8ff; } /* 방진마스크 - 연한 보라 */
+        .row-grade12 { background-color: #ccfbf1; } /* 1급/2급 - 연한 민트 */
+
         .text-red { color: #d93025; font-weight: bold; }
         .text-center { text-align: center; }
         .text-right { text-align: right; font-weight: bold; }
@@ -222,10 +227,6 @@
             const container = document.getElementById('excelTableContainer');
             const fmt = (val) => val === 0 ? '-' : val;
 
-            const yellowMaskTotal = Number(items
-                .filter(i => ['p60', 'p10', 'nepure', 'ato'].includes(i.category))
-                .reduce((sum, i) => sum + i.stock, 0).toFixed(2));
-
             let html = `
                 <table class="excel-table">
                     <thead>
@@ -238,18 +239,7 @@
             `;
 
             items.forEach(item => {
-                if (item.id === 20) {
-                    html += `
-                        <tr class="row-subtotal">
-                            <td class="text-center" style="font-weight:bold;">황사 소계</td>
-                            <td class="text-right" style="padding-right:12px;">${fmt(yellowMaskTotal)}</td>
-                        </tr>
-                    `;
-                }
-
-                let rowClass = '';
-                if (item.category === 'nepure') rowClass = 'row-nepure';
-                if (item.category === 'ato') rowClass = 'row-ato';
+                const rowClass = `row-${item.category}`;
 
                 let nameClass = '';
                 if (item.name.includes('네퓨어 소형(10매)')) nameClass = 'text-red';
@@ -312,6 +302,10 @@
                             <button class="action-btn btn-box" onclick="changeStock(${item.id}, 12)">+12개</button>
                             <button class="action-btn btn-add" onclick="changeStock(${item.id}, 1)">+1개</button>
                             <button class="action-btn btn-sub" onclick="changeStock(${item.id}, -1)">-1개</button>
+                        </div>
+                        <div class="input-row">
+                            <input type="number" id="custom-${item.id}" placeholder="수동 낱개 수량">
+                            <button class="btn-calc-custom" onclick="addLooseCustom(${item.id})">➕ 수동 추가</button>
                         </div>
                     `;
                 } else if (item.category === 'ato') {
