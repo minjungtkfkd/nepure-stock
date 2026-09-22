@@ -61,8 +61,8 @@
         .item-title { font-weight: 700; font-size: 0.98rem; margin-bottom: 6px; color: #0f172a; }
         .item-stock { font-size: 1.2rem; color: #2563eb; font-weight: 800; margin-bottom: 10px; }
 
-        .btn-row { display: flex; gap: 4px; margin-bottom: 8px; }
-        button.action-btn { flex: 1; border: none; padding: 10px 1px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-align: center; white-space: nowrap; }
+        .btn-row { display: flex; gap: 3px; margin-bottom: 8px; }
+        button.action-btn { flex: 1; border: none; padding: 10px 1px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; text-align: center; white-space: nowrap; }
         button.action-btn:active { opacity: 0.7; transform: scale(0.98); }
 
         .btn-box { background-color: #2563eb; color: white; }
@@ -88,13 +88,12 @@
         .excel-th-name { background-color: #d9ead3; text-align: center; font-weight: bold; width: 70%; }
         .excel-th-stock { background-color: #f4ccd0; text-align: center; font-weight: bold; width: 30%; }
         
-        /* 카테고리별 엑셀 표 행 배경색 */
-        .row-p60     { background-color: #e0f2fe; } /* 프리미엄(60매) - 연한 파랑 */
-        .row-p10     { background-color: #dcfce7; } /* 프리미엄(10매) - 연한 초록 */
-        .row-nepure  { background-color: #ffedd5; } /* 네퓨어(60매) - 연한 주황 */
-        .row-ato     { background-color: #fef9c3; } /* 아토(60매) - 연한 노랑 */
-        .row-dust    { background-color: #f3e8ff; } /* 방진마스크 - 연한 보라 */
-        .row-grade12 { background-color: #ccfbf1; } /* 1급/2급 - 연한 민트 */
+        .row-p60     { background-color: #e0f2fe; }
+        .row-p10     { background-color: #dcfce7; }
+        .row-nepure  { background-color: #ffedd5; }
+        .row-ato     { background-color: #fef9c3; }
+        .row-dust    { background-color: #f3e8ff; }
+        .row-grade12 { background-color: #ccfbf1; }
 
         .text-red { color: #d93025; font-weight: bold; }
         .text-center { text-align: center; }
@@ -323,9 +322,17 @@
                 } else if (item.category === 'p10') {
                     controlsHtml = `
                         <div class="btn-row">
-                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 1)">+1 개</button>
-                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 6)">+6 개</button>
-                            <button class="action-btn btn-sub" onclick="changeStock(${item.id}, -1)">-1 개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 1)">+1개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 2)">+2개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 3)">+3개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 4)">+4개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 5)">+5개</button>
+                            <button class="action-btn btn-add" onclick="changeStock(${item.id}, 6)">+6개</button>
+                            <button class="action-btn btn-sub" onclick="changeStock(${item.id}, -1)">-1개</button>
+                        </div>
+                        <div class="input-row">
+                            <input type="number" id="custom-${item.id}" placeholder="수동 낱개 수량">
+                            <button class="btn-calc-custom" onclick="addLooseCustom(${item.id})">➕ 수동 추가</button>
                         </div>
                     `;
                 } else {
