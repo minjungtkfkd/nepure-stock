@@ -50,7 +50,7 @@
       gap: 8px;
     }
 
-    /* 1. 카테고리 알약 버튼 그리드 */
+    /* 카테고리 알약 버튼 그리드 */
     .category-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -86,7 +86,7 @@
     .cat-dust { background-color: var(--cat-dust); }
     .cat-grade { background-color: var(--cat-grade); }
 
-    /* 2. 선택된 카테고리의 상품 목록 */
+    /* 선택된 카테고리의 상품 목록 */
     .product-section {
       background: var(--card-bg);
       border-radius: 16px;
@@ -123,7 +123,7 @@
       background: #e2e7ec;
     }
 
-    /* 3. 롯트번호 입력 영역 */
+    /* 롯트번호 입력 영역 */
     .lot-section {
       background: var(--card-bg);
       border-radius: 16px;
@@ -140,7 +140,7 @@
       outline: none;
     }
 
-    /* 4. 계산기 모달 팝업 */
+    /* 계산기 모달 팝업 */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -252,7 +252,7 @@
       cursor: pointer;
     }
 
-    /* 5. 카카오톡 스타일 하단 고정 창 */
+    /* 카카오톡 스타일 하단 고정 창 */
     .bottom-fixed-panel {
       position: fixed;
       bottom: 0;
@@ -412,7 +412,8 @@
       <span class="panel-title">💬 오늘 출고 메시지 미리보기</span>
       <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="chat-bubble-preview" id="previewText">오늘 네퓨어스토어 출고입니다</div>
+    <!-- 변경 포인트 1: HTML 내 기본 문구 수정 -->
+    <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
     <div class="bottom-btn-group">
       <button class="btn-kakao-share" onclick="shareToKakao()">
         <span>카카오톡 공유</span>
@@ -424,7 +425,6 @@
   <div id="toast" class="toast">클립보드에 복사되었습니다!</div>
 
   <script>
-    // 핵심 변경 부분: 카테고리별 상품 데이터 수정
     const CATEGORY_PRODUCTS = {
       "프리미엄": [
         "프리미엄 흰색", "프리미엄 검정색", "프리미엄 연한황색", 
@@ -517,8 +517,9 @@
       updatePreview();
     }
 
+    // 변경 포인트 2: JavaScript 내 메시지 생성 기본 문구 수정
     function updatePreview() {
-      let msg = "오늘 네퓨어스토어 출고입니다 \n";
+      let msg = "[오늘 네퓨어스토어 출고입니다]\n";
       let hasItem = false;
 
       for (const [prod, qty] of Object.entries(selectedItems)) {
@@ -534,7 +535,7 @@
       }
 
       const previewElem = document.getElementById('previewText');
-      previewElem.textContent = hasItem || lotVal !== "" ? msg.trim() : "오늘 네퓨어스토어 출고입니다";
+      previewElem.textContent = hasItem || lotVal !== "" ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
     }
 
     function shareToKakao() {
