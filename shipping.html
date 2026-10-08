@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>네퓨어 출고 안내</title>
+  <title>네퓨어 출고 관리 도구</title>
   
   <!-- 스마트폰 홈 화면 바로가기 실행 최적화 메타 태그 -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -239,4 +239,342 @@
       border: none;
       border-radius: 12px;
       padding: 14px;
-      font-size: 1.1rem
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      background: #888;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .bottom-fixed-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      background: #ffffff;
+      border-top: 2px solid #eef0f3;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+      padding: 12px 16px;
+      z-index: 900;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .btn-reset {
+      background: none;
+      border: none;
+      color: #ff4d4f;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .chat-bubble-preview {
+      background-color: #fee500;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: #000;
+      min-height: 5.6em; /* 최소 4줄 높이 보장 (1.4em x 4줄) */
+      max-height: 120px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+      font-weight: 500;
+      user-select: text;
+    }
+
+    .bottom-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-kakao-share {
+      flex: 1.2;
+      background-color: #fee500;
+      color: #191919;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-copy {
+      flex: 1;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 2000;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📦 일일 출고 안내</h1>
+  </header>
+
+  <div class="category-grid">
+    <button class="cat-btn cat-premium active" onclick="selectCategory('프리미엄')">프리미엄</button>
+    <button class="cat-btn cat-nepure" onclick="selectCategory('네퓨어')">네퓨어</button>
+    <button class="cat-btn cat-ato" onclick="selectCategory('아토')">아토</button>
+    <button class="cat-btn cat-dust" onclick="selectCategory('방진마스크')">방진마스크</button>
+    <button class="cat-btn cat-grade" style="grid-column: span 2;" onclick="selectCategory('1급/2급')">1급 / 2급</button>
+  </div>
+
+  <div class="product-section">
+    <div class="product-title" id="selectedCatTitle">프리미엄 제품 선택</div>
+    <div class="product-list" id="productListContainer"></div>
+  </div>
+
+  <div class="lot-section">
+    <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 (예: 0279.2029년10월05일까지)">
+  </div>
+
+  <div class="modal-overlay" id="numpadModal">
+    <div class="numpad-modal">
+      <div class="numpad-header">
+        <span class="numpad-target-name" id="modalProductName">상품명</span>
+      </div>
+      <div class="numpad-display" id="numpadDisplay">0 박스</div>
+      
+      <div class="numpad-grid">
+        <button class="num-btn" onclick="pressNum('1')">1</button>
+        <button class="num-btn" onclick="pressNum('2')">2</button>
+        <button class="num-btn" onclick="pressNum('3')">3</button>
+        <button class="num-btn" onclick="pressNum('4')">4</button>
+        <button class="num-btn" onclick="pressNum('5')">5</button>
+        <button class="num-btn" onclick="pressNum('6')">6</button>
+        <button class="num-btn" onclick="pressNum('7')">7</button>
+        <button class="num-btn" onclick="pressNum('8')">8</button>
+        <button class="num-btn" onclick="pressNum('9')">9</button>
+        <button class="num-btn btn-clear" onclick="pressClear()">C</button>
+        <button class="num-btn" onclick="pressNum('0')">0</button>
+        <button class="num-btn btn-del" onclick="pressDelete()">⌫</button>
+      </div>
+
+      <div class="numpad-actions">
+        <button class="btn-cancel" onclick="closeNumpad()">취소</button>
+        <button class="btn-confirm" onclick="confirmQuantity()">수량 추가하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-fixed-panel">
+    <div class="panel-header">
+      <span class="panel-title">💬 출고 메시지 미리보기</span>
+      <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
+    </div>
+    <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
+    <div class="bottom-btn-group">
+      <button class="btn-kakao-share" onclick="shareToKakao()">카카오톡 공유</button>
+      <button class="btn-copy" onclick="copyText()">복사하기</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">메시지가 복사되었습니다!</div>
+
+  <script>
+    const CATEGORY_PRODUCTS = {
+      "프리미엄": [
+        "프리미엄 흰색", "프리미엄 검정색", "프리미엄 연한황색", 
+        "프리미엄 진한회색", "프리미엄 흰색+검정색", "프리미엄 연한황색+진한회색"
+      ],
+      "네퓨어": [
+        "네퓨어 소형", "네퓨어 흰색", "비말 소형", "프리미엄 비말"
+      ],
+      "아토": [
+        "아토 흰색", "아토 검정색", "아토 연한황색", "아토 진한회색"
+      ],
+      "방진마스크": [
+        "M8000", "M8000카본", "900A", "900A카본"
+      ],
+      "1급/2급": [
+        "501", "530", "8301", "N7000B", "N7101C"
+      ]
+    };
+
+    let selectedCategory = "프리미엄";
+    let selectedProduct = "";
+    let currentInputVal = "";
+    const selectedItems = {};
+
+    function selectCategory(catName) {
+      selectedCategory = catName;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(catName));
+      });
+      document.getElementById('selectedCatTitle').textContent = `${catName} 제품 선택`;
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('productListContainer');
+      container.innerHTML = '';
+      const products = CATEGORY_PRODUCTS[selectedCategory] || [];
+      products.forEach(prod => {
+        const chip = document.createElement('div');
+        chip.className = 'product-chip';
+        chip.textContent = prod;
+        chip.onclick = () => openNumpad(prod);
+        container.appendChild(chip);
+      });
+    }
+
+    function openNumpad(productName) {
+      selectedProduct = productName;
+      currentInputVal = selectedItems[productName] ? String(selectedItems[productName]) : "";
+      document.getElementById('modalProductName').textContent = productName;
+      updateNumpadDisplay();
+      document.getElementById('numpadModal').classList.add('open');
+    }
+
+    function closeNumpad() {
+      document.getElementById('numpadModal').classList.remove('open');
+    }
+
+    function pressNum(numStr) {
+      if (currentInputVal === "0") currentInputVal = "";
+      if (currentInputVal.length < 4) {
+        currentInputVal += numStr;
+      }
+      updateNumpadDisplay();
+    }
+
+    function pressDelete() {
+      currentInputVal = currentInputVal.slice(0, -1);
+      updateNumpadDisplay();
+    }
+
+    function pressClear() {
+      currentInputVal = "";
+      updateNumpadDisplay();
+    }
+
+    function updateNumpadDisplay() {
+      const displayVal = currentInputVal === "" ? "0" : currentInputVal;
+      document.getElementById('numpadDisplay').textContent = `${displayVal} 박스`;
+    }
+
+    function confirmQuantity() {
+      const qty = parseInt(currentInputVal, 10);
+      if (!isNaN(qty) && qty > 0) {
+        selectedItems[selectedProduct] = qty;
+      } else {
+        delete selectedItems[selectedProduct];
+      }
+      closeNumpad();
+      updatePreview();
+    }
+
+    function updatePreview() {
+      let msg = "[오늘 네퓨어스토어 출고입니다]\n";
+      let hasItem = false;
+
+      for (const [prod, qty] of Object.entries(selectedItems)) {
+        if (qty > 0) {
+          msg += `${prod}  ${qty}박스\n`;
+          hasItem = true;
+        }
+      }
+
+      const lotVal = document.getElementById('lotInput').value.trim();
+      if (lotVal !== "") {
+        msg += `롯트번호 ${lotVal}\n`;
+      }
+
+      const previewElem = document.getElementById('previewText');
+      previewElem.textContent = hasItem || lotVal !== "" ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
+    }
+
+    function shareToKakao() {
+      const textToShare = document.getElementById('previewText').textContent;
+      if (navigator.share) {
+        navigator.share({
+          title: '네퓨어스토어 출고 안내',
+          text: textToShare
+        }).catch(() => {});
+      } else {
+        copyText();
+      }
+    }
+
+    function copyText() {
+      const textToCopy = document.getElementById('previewText').textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast("클립보드에 복사되었습니다!");
+      }).catch(() => {
+        showToast("복사 실패했습니다.");
+      });
+    }
+
+    function resetAll() {
+      for (const key in selectedItems) {
+        delete selectedItems[key];
+      }
+      document.getElementById('lotInput').value = '';
+      updatePreview();
+      showToast("내역이 초기화되었습니다.");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+
+    document.getElementById('lotInput').addEventListener('input', updatePreview);
+
+    window.onload = () => {
+      selectCategory('프리미엄');
+    };
+  </script>
+</body>
+</html>
