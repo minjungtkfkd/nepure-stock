@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>네퓨어 출고 관리 도구</title>
+  
+  <!-- 스마트폰 홈 화면 바로가기 실행 최적화 메타 태그 -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="출고관리">
+  <meta name="theme-color" content="#00c73c">
+
   <style>
     :root {
       --primary-color: #00c73c;
@@ -11,7 +19,6 @@
       --card-bg: #ffffff;
       --text-color: #222222;
       
-      /* 카테고리 파스텔 색상 */
       --cat-premium: #71a3ff;
       --cat-nepure: #ff9b53;
       --cat-ato: #f2c94c;
@@ -24,6 +31,7 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     body {
@@ -50,7 +58,6 @@
       gap: 8px;
     }
 
-    /* 타인 사용자를 위한 한 줄 사용 가이드 */
     .guide-box {
       background-color: #e8f5e9;
       border: 1px solid #c8e6c9;
@@ -62,7 +69,6 @@
       line-height: 1.4;
     }
 
-    /* 카테고리 알약 버튼 그리드 */
     .category-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -97,7 +103,6 @@
     .cat-dust { background-color: var(--cat-dust); }
     .cat-grade { background-color: var(--cat-grade); }
 
-    /* 선택된 카테고리의 상품 목록 */
     .product-section {
       background: var(--card-bg);
       border-radius: 14px;
@@ -133,7 +138,6 @@
       background: #e2e7ec;
     }
 
-    /* 롯트번호 입력 영역 */
     .lot-section {
       background: var(--card-bg);
       border-radius: 14px;
@@ -148,9 +152,9 @@
       padding: 10px;
       font-size: 0.9rem;
       outline: none;
+      user-select: text;
     }
 
-    /* 계산기 모달 팝업 */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -262,7 +266,6 @@
       cursor: pointer;
     }
 
-    /* 하단 고정 카카오톡 메시지 박스 */
     .bottom-fixed-panel {
       position: fixed;
       bottom: 0;
@@ -310,6 +313,7 @@
       white-space: pre-wrap;
       margin-bottom: 10px;
       font-weight: 500;
+      user-select: text;
     }
 
     .bottom-btn-group {
@@ -366,12 +370,12 @@
     <h1>📦 일일 출고 관리 도구</h1>
   </header>
 
-  <!-- 타인 사용자를 위한 가이드 안내 상자 -->
   <div class="guide-box">
-    💡 <b>사용 방법</b>: 카테고리 선택 ➔ 상품 클릭 후 수량 입력 ➔ 하단의 <b>[카카오톡 공유]</b> 또는 <b>[복사하기]</b> 버튼을 눌러 전달하세요!
+    📱 <b>홈 화면 바로가기 추가 방법</b><br>
+    • <b>갤럭시/안드로이드 (Chrome, 웨일 등)</b>: 오른쪽 상단 [⋮] 버튼 ➔ <b>[홈 화면에 추가]</b><br>
+    • <b>아이폰 (Safari)</b>: 하단 중앙 [공유 ⎋] 버튼 ➔ <b>[홈 화면에 추가]</b>
   </div>
 
-  <!-- 카테고리 버튼 -->
   <div class="category-grid">
     <button class="cat-btn cat-premium active" onclick="selectCategory('프리미엄')">프리미엄</button>
     <button class="cat-btn cat-nepure" onclick="selectCategory('네퓨어')">네퓨어</button>
@@ -380,18 +384,15 @@
     <button class="cat-btn cat-grade" style="grid-column: span 2;" onclick="selectCategory('1급/2급')">1급 / 2급</button>
   </div>
 
-  <!-- 상품 목록 -->
   <div class="product-section">
     <div class="product-title" id="selectedCatTitle">프리미엄 제품 선택</div>
     <div class="product-list" id="productListContainer"></div>
   </div>
 
-  <!-- 롯트번호 입력 -->
   <div class="lot-section">
     <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 (예: 0279.2029년10월05일까지)">
   </div>
 
-  <!-- 계산기 모달 -->
   <div class="modal-overlay" id="numpadModal">
     <div class="numpad-modal">
       <div class="numpad-header">
@@ -421,7 +422,6 @@
     </div>
   </div>
 
-  <!-- 하단 고정 창 -->
   <div class="bottom-fixed-panel">
     <div class="panel-header">
       <span class="panel-title">💬 출고 메시지 미리보기</span>
@@ -515,34 +515,7 @@
 
     function updateNumpadDisplay() {
       const displayVal = currentInputVal === "" ? "0" : currentInputVal;
-      document.getElementById('numpadDisplay').textContent = `${displayVal} 박스`;
-    }
-
-    function confirmQuantity() {
-      const qty = parseInt(currentInputVal, 10);
-      if (!isNaN(qty) && qty > 0) {
-        selectedItems[selectedProduct] = qty;
-      } else {
-        delete selectedItems[selectedProduct];
-      }
-      closeNumpad();
-      updatePreview();
-    }
-
-    function updatePreview() {
-      let msg = "[오늘 네퓨어스토어 출고입니다]\n";
-      let hasItem = false;
-
-      for (const [prod, qty] of Object.entries(selectedItems)) {
-        if (qty > 0) {
-          msg += `${prod}  ${qty}박스\n`;
-          hasItem = true;
-        }
-      }
-
-      const lotVal = document.getElementById('lotInput').value.trim();
-      if (lotVal !== "") {
-        msg += `롯트번호 ${lotVal}\n`;
+      document.getElementById('numpadDisplay').textContent = `${displayVal} 박스`;     }      function confirmQuantity() {       const qty = parseInt(currentInputVal, 10);       if (!isNaN(qty) && qty > 0) {         selectedItems[selectedProduct] = qty;       } else {         delete selectedItems[selectedProduct];       }       closeNumpad();       updatePreview();     }      function updatePreview() {       let msg = "[오늘 네퓨어스토어 출고입니다]\n";       let hasItem = false;        for (const [prod, qty] of Object.entries(selectedItems)) {         if (qty > 0) {           msg += `${prod}  ${qty}박스\n`;           hasItem = true;         }       }        const lotVal = document.getElementById('lotInput').value.trim();       if (lotVal !== "") {         msg += `롯트번호 ${lotVal}\n`;
       }
 
       const previewElem = document.getElementById('previewText');
