@@ -484,9 +484,9 @@
       });
       document.getElementById('selectedCatTitle').textContent = `${catName} 제품 선택`;
       
-      // 방진마스크일 경우 롯트번호 입력 칸 숨김
+      // 방진마스크 및 1급/2급 카테고리일 경우 롯트번호 입력 칸 숨김
       const lotSection = document.getElementById('lotSection');
-      if (catName === '방진마스크') {
+      if (catName === '방진마스크' || catName === '1급/2급') {
         lotSection.style.display = 'none';
       } else {
         lotSection.style.display = 'block';
@@ -594,9 +594,9 @@
         }
       }
 
-      // 방진마스크 카테고리가 아닐 때만 롯트번호 메시지 포함
+      // 방진마스크 및 1급/2급 카테고리가 아닐 때만 롯트번호 메시지 포함
       const lotVal = document.getElementById('lotInput').value.trim();
-      const isLotVisible = selectedCategory !== '방진마스크';
+      const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
       if (isLotVisible && lotVal !== "") {
         msg += `롯트번호 ${lotVal}\n`;
       }
