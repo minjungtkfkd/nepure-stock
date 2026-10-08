@@ -39,7 +39,7 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       padding: 16px;
-      padding-bottom: 250px; /* 미리보기 높이 확장에 맞춰 하단 여백 조정 */
+      padding-bottom: 250px;
       max-width: 500px;
       margin: 0 auto;
     }
@@ -121,10 +121,25 @@
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
+      text-align: center;
     }
 
     .product-chip:active {
       background: #e2e7ec;
+    }
+
+    /* 프리미엄 전용 줄바꿈 레이아웃 */
+    .premium-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .premium-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .lot-section {
@@ -297,7 +312,7 @@
       font-size: 0.88rem;
       line-height: 1.4;
       color: #000;
-      min-height: 5.6em; /* 최소 4줄 높이 보장 (1.4em x 4줄) */
+      min-height: 5.6em;
       max-height: 120px;
       overflow-y: auto;
       white-space: pre-wrap;
@@ -373,7 +388,7 @@
     <div class="product-list" id="productListContainer"></div>
   </div>
 
-  <div class="lot-section">
+  <div class="lot-section" id="lotSection">
     <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 (예: 0279.2029년10월05일까지)">
   </div>
 
@@ -423,20 +438,37 @@
   <script>
     const CATEGORY_PRODUCTS = {
       "프리미엄": [
-        "프리미엄 흰색", "프리미엄 검정색", "프리미엄 연한황색", 
-        "프리미엄 진한회색", "프리미엄 흰색+검정색", "프리미엄 연한황색+진한회색"
+        { label: "흰색", value: "프리미엄 흰색" },
+        { label: "검정색", value: "프리미엄 검정색" },
+        { label: "연한황색", value: "프리미엄 연한황색" },
+        { label: "진한회색", value: "프리미엄 진한회색" },
+        { label: "흰색+검정색", value: "프리미엄 흰색+검정색" },
+        { label: "연한황색+진한회색", value: "프리미엄 연한황색+진한회색" }
       ],
       "네퓨어": [
-        "네퓨어 소형", "네퓨어 흰색", "비말 소형", "프리미엄 비말"
+        { label: "네퓨어 소형", value: "네퓨어 소형" },
+        { label: "네퓨어 흰색", value: "네퓨어 흰색" },
+        { label: "비말 소형", value: "비말 소형" },
+        { label: "프리미엄 비말", value: "프리미엄 비말" }
       ],
       "아토": [
-        "아토 흰색", "아토 검정색", "아토 연한황색", "아토 진한회색"
+        { label: "아토 흰색", value: "아토 흰색" },
+        { label: "아토 검정색", value: "아토 검정색" },
+        { label: "아토 연한황색", value: "아토 연한황색" },
+        { label: "아토 진한회색", value: "아토 진한회색" }
       ],
       "방진마스크": [
-        "M8000", "M8000카본", "900A", "900A카본"
+        { label: "M8000", value: "M8000" },
+        { label: "M8000카본", value: "M8000카본" },
+        { label: "900A", value: "900A" },
+        { label: "900A카본", value: "900A카본" }
       ],
       "1급/2급": [
-        "501", "530", "8301", "N7000B", "N7101C"
+        { label: "501", value: "501" },
+        { label: "530", value: "530" },
+        { label: "8301", value: "8301" },
+        { label: "N7000B", value: "N7000B" },
+        { label: "N7101C", value: "N7101C" }
       ]
     };
 
@@ -451,26 +483,64 @@
         btn.classList.toggle('active', btn.textContent.includes(catName));
       });
       document.getElementById('selectedCatTitle').textContent = `${catName} 제품 선택`;
+      
+      // 방진마스크일 경우 롯트번호 입력 칸 숨김
+      const lotSection = document.getElementById('lotSection');
+      if (catName === '방진마스크') {
+        lotSection.style.display = 'none';
+      } else {
+        lotSection.style.display = 'block';
+      }
+
       renderProducts();
+      updatePreview();
     }
 
     function renderProducts() {
       const container = document.getElementById('productListContainer');
       container.innerHTML = '';
       const products = CATEGORY_PRODUCTS[selectedCategory] || [];
-      products.forEach(prod => {
-        const chip = document.createElement('div');
-        chip.className = 'product-chip';
-        chip.textContent = prod;
-        chip.onclick = () => openNumpad(prod);
-        container.appendChild(chip);
-      });
+
+      if (selectedCategory === "프리미엄") {
+        const gridWrapper = document.createElement('div');
+        gridWrapper.className = 'premium-grid';
+
+        const row1 = document.createElement('div');
+        row1.className = 'premium-row';
+        const row2 = document.createElement('div');
+        row2.className = 'premium-row';
+
+        products.forEach((prod, index) => {
+          const chip = document.createElement('div');
+          chip.className = 'product-chip';
+          chip.textContent = prod.label;
+          chip.onclick = () => openNumpad(prod.value);
+
+          if (index < 4) {
+            row1.appendChild(chip);
+          } else {
+            row2.appendChild(chip);
+          }
+        });
+
+        gridWrapper.appendChild(row1);
+        gridWrapper.appendChild(row2);
+        container.appendChild(gridWrapper);
+      } else {
+        products.forEach(prod => {
+          const chip = document.createElement('div');
+          chip.className = 'product-chip';
+          chip.textContent = prod.label;
+          chip.onclick = () => openNumpad(prod.value);
+          container.appendChild(chip);
+        });
+      }
     }
 
-    function openNumpad(productName) {
-      selectedProduct = productName;
-      currentInputVal = selectedItems[productName] ? String(selectedItems[productName]) : "";
-      document.getElementById('modalProductName').textContent = productName;
+    function openNumpad(productFullName) {
+      selectedProduct = productFullName;
+      currentInputVal = selectedItems[productFullName] ? String(selectedItems[productFullName]) : "";
+      document.getElementById('modalProductName').textContent = productFullName;
       updateNumpadDisplay();
       document.getElementById('numpadModal').classList.add('open');
     }
@@ -524,13 +594,16 @@
         }
       }
 
+      // 방진마스크 카테고리가 아닐 때만 롯트번호 메시지 포함
       const lotVal = document.getElementById('lotInput').value.trim();
-      if (lotVal !== "") {
+      const isLotVisible = selectedCategory !== '방진마스크';
+      if (isLotVisible && lotVal !== "") {
         msg += `롯트번호 ${lotVal}\n`;
       }
 
       const previewElem = document.getElementById('previewText');
-      previewElem.textContent = hasItem || lotVal !== "" ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
+      const hasLot = isLotVisible && lotVal !== "";
+      previewElem.textContent = hasItem || hasLot ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
     }
 
     function shareToKakao() {
