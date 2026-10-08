@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>네퓨어 재고 및 출고 관리</title>
+  <title>네퓨어 출고 관리 도구</title>
   <style>
     :root {
       --primary-color: #00c73c;
@@ -12,7 +12,7 @@
       --text-color: #222222;
       
       /* 카테고리 파스텔 색상 */
-      --cat-premium-60: #71a3ff;
+      --cat-premium: #71a3ff;
       --cat-nepure: #ff9b53;
       --cat-ato: #f2c94c;
       --cat-dust: #9b51e0;
@@ -31,18 +31,18 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       padding: 16px;
-      padding-bottom: 240px;
+      padding-bottom: 230px;
       max-width: 500px;
       margin: 0 auto;
     }
 
     header {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     header h1 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -50,37 +50,48 @@
       gap: 8px;
     }
 
+    /* 타인 사용자를 위한 한 줄 사용 가이드 */
+    .guide-box {
+      background-color: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      color: #2e7d32;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
     /* 카테고리 알약 버튼 그리드 */
     .category-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 16px;
     }
 
     .cat-btn {
       border: none;
-      border-radius: 25px;
-      padding: 14px 10px;
-      font-size: 1rem;
+      border-radius: 20px;
+      padding: 12px 8px;
+      font-size: 0.95rem;
       font-weight: bold;
       color: white;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
       transition: transform 0.1s, opacity 0.2s;
       text-align: center;
     }
 
     .cat-btn:active {
       transform: scale(0.96);
-      opacity: 0.9;
     }
 
     .cat-btn.active {
       outline: 3px solid #333;
     }
 
-    .cat-premium { background-color: var(--cat-premium-60); }
+    .cat-premium { background-color: var(--cat-premium); }
     .cat-nepure { background-color: var(--cat-nepure); }
     .cat-ato { background-color: var(--cat-ato); }
     .cat-dust { background-color: var(--cat-dust); }
@@ -89,16 +100,16 @@
     /* 선택된 카테고리의 상품 목록 */
     .product-section {
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 14px;
+      padding: 14px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .product-title {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #666;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-weight: bold;
     }
 
@@ -111,12 +122,11 @@
     .product-chip {
       background: #f0f2f5;
       border: 1px solid #e0e4e9;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 0.95rem;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     .product-chip:active {
@@ -126,8 +136,8 @@
     /* 롯트번호 입력 영역 */
     .lot-section {
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 14px 16px;
+      border-radius: 14px;
+      padding: 12px 14px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
@@ -136,7 +146,7 @@
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 10px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       outline: none;
     }
 
@@ -171,7 +181,7 @@
 
     .numpad-header {
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .numpad-target-name {
@@ -188,7 +198,7 @@
       font-weight: bold;
       text-align: right;
       padding: 10px 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       color: #111;
     }
 
@@ -252,7 +262,7 @@
       cursor: pointer;
     }
 
-    /* 카카오톡 스타일 하단 고정 창 */
+    /* 하단 고정 카카오톡 메시지 박스 */
     .bottom-fixed-panel {
       position: fixed;
       bottom: 0;
@@ -295,7 +305,7 @@
       font-size: 0.88rem;
       line-height: 1.4;
       color: #000;
-      max-height: 100px;
+      max-height: 90px;
       overflow-y: auto;
       white-space: pre-wrap;
       margin-bottom: 10px;
@@ -353,10 +363,15 @@
 <body>
 
   <header>
-    <h1>😷 네퓨어 재고관리</h1>
+    <h1>📦 일일 출고 관리 도구</h1>
   </header>
 
-  <!-- 카테고리 알약 버튼 영역 -->
+  <!-- 타인 사용자를 위한 가이드 안내 상자 -->
+  <div class="guide-box">
+    💡 <b>사용 방법</b>: 카테고리 선택 ➔ 상품 클릭 후 수량 입력 ➔ 하단의 <b>[카카오톡 공유]</b> 또는 <b>[복사하기]</b> 버튼을 눌러 전달하세요!
+  </div>
+
+  <!-- 카테고리 버튼 -->
   <div class="category-grid">
     <button class="cat-btn cat-premium active" onclick="selectCategory('프리미엄')">프리미엄</button>
     <button class="cat-btn cat-nepure" onclick="selectCategory('네퓨어')">네퓨어</button>
@@ -373,7 +388,7 @@
 
   <!-- 롯트번호 입력 -->
   <div class="lot-section">
-    <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 입력 (예: 0279.2029년10월05일까지)">
+    <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 (예: 0279.2029년10월05일까지)">
   </div>
 
   <!-- 계산기 모달 -->
@@ -406,23 +421,20 @@
     </div>
   </div>
 
-  <!-- 하단 고정 바 -->
+  <!-- 하단 고정 창 -->
   <div class="bottom-fixed-panel">
     <div class="panel-header">
-      <span class="panel-title">💬 오늘 출고 메시지 미리보기</span>
+      <span class="panel-title">💬 출고 메시지 미리보기</span>
       <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
     </div>
-    <!-- 변경 포인트 1: HTML 내 기본 문구 수정 -->
     <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
     <div class="bottom-btn-group">
-      <button class="btn-kakao-share" onclick="shareToKakao()">
-        <span>카카오톡 공유</span>
-      </button>
+      <button class="btn-kakao-share" onclick="shareToKakao()">카카오톡 공유</button>
       <button class="btn-copy" onclick="copyText()">복사하기</button>
     </div>
   </div>
 
-  <div id="toast" class="toast">클립보드에 복사되었습니다!</div>
+  <div id="toast" class="toast">메시지가 복사되었습니다!</div>
 
   <script>
     const CATEGORY_PRODUCTS = {
@@ -517,7 +529,6 @@
       updatePreview();
     }
 
-    // 변경 포인트 2: JavaScript 내 메시지 생성 기본 문구 수정
     function updatePreview() {
       let msg = "[오늘 네퓨어스토어 출고입니다]\n";
       let hasItem = false;
@@ -553,9 +564,9 @@
     function copyText() {
       const textToCopy = document.getElementById('previewText').textContent;
       navigator.clipboard.writeText(textToCopy).then(() => {
-        showToast("카톡 메시지가 복사되었습니다!");
+        showToast("클립보드에 복사되었습니다!");
       }).catch(() => {
-        showToast("복사에 실패했습니다.");
+        showToast("복사 실패했습니다.");
       });
     }
 
