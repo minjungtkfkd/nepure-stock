@@ -1,1138 +1,242 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <title>네퓨어 출고 관리 도구</title>
-
+  <title>네퓨어 출고 안내</title>
   
-
   <!-- 스마트폰 홈 화면 바로가기 실행 최적화 메타 태그 -->
-
   <meta name="mobile-web-app-capable" content="yes">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
-
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
   <meta name="apple-mobile-web-app-title" content="출고관리">
-
   <meta name="theme-color" content="#00c73c">
 
-
-
   <style>
-
     :root {
-
       --primary-color: #00c73c;
-
       --bg-color: #f4f6f9;
-
       --card-bg: #ffffff;
-
       --text-color: #222222;
-
       
-
       --cat-premium: #71a3ff;
-
       --cat-nepure: #ff9b53;
-
       --cat-ato: #f2c94c;
-
       --cat-dust: #9b51e0;
-
       --cat-grade: #4cc9c0;
-
     }
-
-
 
     * {
-
       box-sizing: border-box;
-
       margin: 0;
-
       padding: 0;
-
       -webkit-tap-highlight-color: transparent;
-
       user-select: none;
-
     }
-
-
 
     body {
-
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
-
       background-color: var(--bg-color);
-
       color: var(--text-color);
-
       padding: 16px;
-
-      padding-bottom: 230px;
-
+      padding-bottom: 250px; /* 미리보기 높이 확장에 맞춰 하단 여백 조정 */
       max-width: 500px;
-
       margin: 0 auto;
-
     }
-
-
 
     header {
-
       text-align: center;
-
       margin-bottom: 12px;
-
     }
-
-
 
     header h1 {
-
       font-size: 1.4rem;
-
       font-weight: 800;
-
       display: flex;
-
       align-items: center;
-
       justify-content: center;
-
       gap: 8px;
-
     }
-
-
-
-    .guide-box {
-
-      background-color: #e8f5e9;
-
-      border: 1px solid #c8e6c9;
-
-      border-radius: 10px;
-
-      padding: 10px 12px;
-
-      font-size: 0.85rem;
-
-      color: #2e7d32;
-
-      margin-bottom: 16px;
-
-      line-height: 1.4;
-
-    }
-
-
 
     .category-grid {
-
       display: grid;
-
       grid-template-columns: repeat(2, 1fr);
-
       gap: 8px;
-
       margin-bottom: 16px;
-
     }
-
-
 
     .cat-btn {
-
       border: none;
-
       border-radius: 20px;
-
       padding: 12px 8px;
-
       font-size: 0.95rem;
-
       font-weight: bold;
-
       color: white;
-
       cursor: pointer;
-
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-
       transition: transform 0.1s, opacity 0.2s;
-
       text-align: center;
-
     }
-
-
 
     .cat-btn:active {
-
       transform: scale(0.96);
-
     }
-
-
 
     .cat-btn.active {
-
       outline: 3px solid #333;
-
     }
-
-
 
     .cat-premium { background-color: var(--cat-premium); }
-
     .cat-nepure { background-color: var(--cat-nepure); }
-
     .cat-ato { background-color: var(--cat-ato); }
-
     .cat-dust { background-color: var(--cat-dust); }
-
     .cat-grade { background-color: var(--cat-grade); }
 
-
-
     .product-section {
-
       background: var(--card-bg);
-
       border-radius: 14px;
-
       padding: 14px;
-
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
       margin-bottom: 14px;
-
     }
-
-
 
     .product-title {
-
       font-size: 0.9rem;
-
       color: #666;
-
       margin-bottom: 10px;
-
       font-weight: bold;
-
     }
-
-
 
     .product-list {
-
       display: flex;
-
       flex-wrap: wrap;
-
       gap: 8px;
-
     }
-
-
 
     .product-chip {
-
       background: #f0f2f5;
-
       border: 1px solid #e0e4e9;
-
       border-radius: 10px;
-
       padding: 10px 12px;
-
       font-size: 0.9rem;
-
       font-weight: 600;
-
       cursor: pointer;
-
     }
-
-
 
     .product-chip:active {
-
       background: #e2e7ec;
-
     }
-
-
 
     .lot-section {
-
       background: var(--card-bg);
-
       border-radius: 14px;
-
       padding: 12px 14px;
-
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
     }
-
-
 
     .lot-input {
-
       width: 100%;
-
       border: 1px solid #ddd;
-
       border-radius: 8px;
-
       padding: 10px;
-
       font-size: 0.9rem;
-
       outline: none;
-
       user-select: text;
-
     }
-
-
 
     .modal-overlay {
-
       position: fixed;
-
       top: 0; left: 0; right: 0; bottom: 0;
-
       background: rgba(0,0,0,0.5);
-
       display: none;
-
       justify-content: center;
-
       align-items: flex-end;
-
       z-index: 1000;
-
     }
-
-
 
     .modal-overlay.open {
-
       display: flex;
-
     }
-
-
 
     .numpad-modal {
-
       background: white;
-
       width: 100%;
-
       max-width: 500px;
-
       border-radius: 20px 20px 0 0;
-
       padding: 20px;
-
       animation: slideUp 0.2s ease-out;
-
     }
-
-
 
     @keyframes slideUp {
-
       from { transform: translateY(100%); }
-
       to { transform: translateY(0); }
-
     }
-
-
 
     .numpad-header {
-
       text-align: center;
-
       margin-bottom: 10px;
-
     }
-
-
 
     .numpad-target-name {
-
       font-size: 1.1rem;
-
       font-weight: bold;
-
       color: #333;
-
     }
-
-
 
     .numpad-display {
-
       background: #f8f9fa;
-
       border: 2px solid #00c73c;
-
       border-radius: 10px;
-
       font-size: 1.8rem;
-
       font-weight: bold;
-
       text-align: right;
-
       padding: 10px 16px;
-
       margin-bottom: 14px;
-
       color: #111;
-
     }
-
-
 
     .numpad-grid {
-
       display: grid;
-
       grid-template-columns: repeat(3, 1fr);
-
       gap: 10px;
-
       margin-bottom: 12px;
-
     }
-
-
 
     .num-btn {
-
       background: #f0f2f5;
-
       border: none;
-
       border-radius: 12px;
-
       padding: 16px;
-
       font-size: 1.3rem;
-
       font-weight: bold;
-
       color: #333;
-
       cursor: pointer;
-
     }
-
-
 
     .num-btn:active {
-
       background: #d8dce2;
-
     }
-
-
 
     .num-btn.btn-del {
-
       background: #ffebee;
-
       color: #d32f2f;
-
     }
-
-
 
     .num-btn.btn-clear {
-
       background: #fff3e0;
-
       color: #e65100;
-
     }
-
-
 
     .numpad-actions {
-
       display: flex;
-
       gap: 10px;
-
     }
-
-
 
     .btn-confirm {
-
       flex: 2;
-
       background: var(--primary-color);
-
       color: white;
-
       border: none;
-
       border-radius: 12px;
-
       padding: 14px;
-
-      font-size: 1.1rem;
-
-      font-weight: bold;
-
-      cursor: pointer;
-
-    }
-
-
-
-    .btn-cancel {
-
-      flex: 1;
-
-      background: #888;
-
-      color: white;
-
-      border: none;
-
-      border-radius: 12px;
-
-      padding: 14px;
-
-      font-size: 1rem;
-
-      cursor: pointer;
-
-    }
-
-
-
-    .bottom-fixed-panel {
-
-      position: fixed;
-
-      bottom: 0;
-
-      left: 0; right: 0;
-
-      background: #ffffff;
-
-      border-top: 2px solid #eef0f3;
-
-      box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
-
-      padding: 12px 16px;
-
-      z-index: 900;
-
-      max-width: 500px;
-
-      margin: 0 auto;
-
-    }
-
-
-
-    .panel-header {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      margin-bottom: 8px;
-
-    }
-
-
-
-    .panel-title {
-
-      font-size: 0.85rem;
-
-      font-weight: bold;
-
-      color: #666;
-
-    }
-
-
-
-    .btn-reset {
-
-      background: none;
-
-      border: none;
-
-      color: #ff4d4f;
-
-      font-size: 0.8rem;
-
-      font-weight: bold;
-
-      cursor: pointer;
-
-    }
-
-
-
-    .chat-bubble-preview {
-
-      background-color: #fee500;
-
-      border-radius: 12px;
-
-      padding: 10px 12px;
-
-      font-size: 0.88rem;
-
-      line-height: 1.4;
-
-      color: #000;
-
-      max-height: 90px;
-
-      overflow-y: auto;
-
-      white-space: pre-wrap;
-
-      margin-bottom: 10px;
-
-      font-weight: 500;
-
-      user-select: text;
-
-    }
-
-
-
-    .bottom-btn-group {
-
-      display: flex;
-
-      gap: 8px;
-
-    }
-
-
-
-    .btn-kakao-share {
-
-      flex: 1.2;
-
-      background-color: #fee500;
-
-      color: #191919;
-
-      border: none;
-
-      border-radius: 10px;
-
-      padding: 12px;
-
-      font-size: 0.95rem;
-
-      font-weight: bold;
-
-      cursor: pointer;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      gap: 6px;
-
-    }
-
-
-
-    .btn-copy {
-
-      flex: 1;
-
-      background-color: #333;
-
-      color: white;
-
-      border: none;
-
-      border-radius: 10px;
-
-      padding: 12px;
-
-      font-size: 0.95rem;
-
-      font-weight: bold;
-
-      cursor: pointer;
-
-    }
-
-
-
-    .toast {
-
-      position: fixed;
-
-      top: 20px;
-
-      left: 50%;
-
-      transform: translateX(-50%);
-
-      background: rgba(0,0,0,0.85);
-
-      color: white;
-
-      padding: 10px 20px;
-
-      border-radius: 20px;
-
-      font-size: 0.85rem;
-
-      display: none;
-
-      z-index: 2000;
-
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-
-
-  <header>
-
-    <h1>📦 일일 출고 관리 도구</h1>
-
-  </header>
-
-
-
-  <div class="guide-box">
-
-    📱 <b>홈 화면 바로가기 추가 방법</b><br>
-
-    • <b>갤럭시/안드로이드 (Chrome, 웨일 등)</b>: 오른쪽 상단 [⋮] 버튼 ➔ <b>[홈 화면에 추가]</b><br>
-
-    • <b>아이폰 (Safari)</b>: 하단 중앙 [공유 ⎋] 버튼 ➔ <b>[홈 화면에 추가]</b>
-
-  </div>
-
-
-
-  <div class="category-grid">
-
-    <button class="cat-btn cat-premium active" onclick="selectCategory('프리미엄')">프리미엄</button>
-
-    <button class="cat-btn cat-nepure" onclick="selectCategory('네퓨어')">네퓨어</button>
-
-    <button class="cat-btn cat-ato" onclick="selectCategory('아토')">아토</button>
-
-    <button class="cat-btn cat-dust" onclick="selectCategory('방진마스크')">방진마스크</button>
-
-    <button class="cat-btn cat-grade" style="grid-column: span 2;" onclick="selectCategory('1급/2급')">1급 / 2급</button>
-
-  </div>
-
-
-
-  <div class="product-section">
-
-    <div class="product-title" id="selectedCatTitle">프리미엄 제품 선택</div>
-
-    <div class="product-list" id="productListContainer"></div>
-
-  </div>
-
-
-
-  <div class="lot-section">
-
-    <input type="text" id="lotInput" class="lot-input" placeholder="롯트번호 및 유통기한 (예: 0279.2029년10월05일까지)">
-
-  </div>
-
-
-
-  <div class="modal-overlay" id="numpadModal">
-
-    <div class="numpad-modal">
-
-      <div class="numpad-header">
-
-        <span class="numpad-target-name" id="modalProductName">상품명</span>
-
-      </div>
-
-      <div class="numpad-display" id="numpadDisplay">0 박스</div>
-
-      
-
-      <div class="numpad-grid">
-
-        <button class="num-btn" onclick="pressNum('1')">1</button>
-
-        <button class="num-btn" onclick="pressNum('2')">2</button>
-
-        <button class="num-btn" onclick="pressNum('3')">3</button>
-
-        <button class="num-btn" onclick="pressNum('4')">4</button>
-
-        <button class="num-btn" onclick="pressNum('5')">5</button>
-
-        <button class="num-btn" onclick="pressNum('6')">6</button>
-
-        <button class="num-btn" onclick="pressNum('7')">7</button>
-
-        <button class="num-btn" onclick="pressNum('8')">8</button>
-
-        <button class="num-btn" onclick="pressNum('9')">9</button>
-
-        <button class="num-btn btn-clear" onclick="pressClear()">C</button>
-
-        <button class="num-btn" onclick="pressNum('0')">0</button>
-
-        <button class="num-btn btn-del" onclick="pressDelete()">⌫</button>
-
-      </div>
-
-
-
-      <div class="numpad-actions">
-
-        <button class="btn-cancel" onclick="closeNumpad()">취소</button>
-
-        <button class="btn-confirm" onclick="confirmQuantity()">수량 추가하기</button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <div class="bottom-fixed-panel">
-
-    <div class="panel-header">
-
-      <span class="panel-title">💬 출고 메시지 미리보기</span>
-
-      <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
-
-    </div>
-
-    <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
-
-    <div class="bottom-btn-group">
-
-      <button class="btn-kakao-share" onclick="shareToKakao()">카카오톡 공유</button>
-
-      <button class="btn-copy" onclick="copyText()">복사하기</button>
-
-    </div>
-
-  </div>
-
-
-
-  <div id="toast" class="toast">메시지가 복사되었습니다!</div>
-
-
-
-  <script>
-
-    const CATEGORY_PRODUCTS = {
-
-      "프리미엄": [
-
-        "프리미엄 흰색", "프리미엄 검정색", "프리미엄 연한황색", 
-
-        "프리미엄 진한회색", "프리미엄 흰색+검정색", "프리미엄 연한황색+진한회색"
-
-      ],
-
-      "네퓨어": [
-
-        "네퓨어 소형", "네퓨어 흰색", "비말 소형", "프리미엄 비말"
-
-      ],
-
-      "아토": [
-
-        "아토 흰색", "아토 검정색", "아토 연한황색", "아토 진한회색"
-
-      ],
-
-      "방진마스크": [
-
-        "M8000", "M8000카본", "900A", "900A카본"
-
-      ],
-
-      "1급/2급": [
-
-        "501", "530", "8301", "N7000B", "N7101C"
-
-      ]
-
-    };
-
-
-
-    let selectedCategory = "프리미엄";
-
-    let selectedProduct = "";
-
-    let currentInputVal = "";
-
-    const selectedItems = {};
-
-
-
-    function selectCategory(catName) {
-
-      selectedCategory = catName;
-
-      document.querySelectorAll('.cat-btn').forEach(btn => {
-
-        btn.classList.toggle('active', btn.textContent.includes(catName));
-
-      });
-
-      document.getElementById('selectedCatTitle').textContent = `${catName} 제품 선택`;
-
-      renderProducts();
-
-    }
-
-
-
-    function renderProducts() {
-
-      const container = document.getElementById('productListContainer');
-
-      container.innerHTML = '';
-
-      const products = CATEGORY_PRODUCTS[selectedCategory] || [];
-
-      products.forEach(prod => {
-
-        const chip = document.createElement('div');
-
-        chip.className = 'product-chip';
-
-        chip.textContent = prod;
-
-        chip.onclick = () => openNumpad(prod);
-
-        container.appendChild(chip);
-
-      });
-
-    }
-
-
-
-    function openNumpad(productName) {
-
-      selectedProduct = productName;
-
-      currentInputVal = selectedItems[productName] ? String(selectedItems[productName]) : "";
-
-      document.getElementById('modalProductName').textContent = productName;
-
-      updateNumpadDisplay();
-
-      document.getElementById('numpadModal').classList.add('open');
-
-    }
-
-
-
-    function closeNumpad() {
-
-      document.getElementById('numpadModal').classList.remove('open');
-
-    }
-
-
-
-    function pressNum(numStr) {
-
-      if (currentInputVal === "0") currentInputVal = "";
-
-      if (currentInputVal.length < 4) {
-
-        currentInputVal += numStr;
-
-      }
-
-      updateNumpadDisplay();
-
-    }
-
-
-
-    function pressDelete() {
-
-      currentInputVal = currentInputVal.slice(0, -1);
-
-      updateNumpadDisplay();
-
-    }
-
-
-
-    function pressClear() {
-
-      currentInputVal = "";
-
-      updateNumpadDisplay();
-
-    }
-
-
-
-    function updateNumpadDisplay() {
-
-      const displayVal = currentInputVal === "" ? "0" : currentInputVal;
-
-      document.getElementById('numpadDisplay').textContent = `${displayVal} 박스`;     }      function confirmQuantity() {       const qty = parseInt(currentInputVal, 10);       if (!isNaN(qty) && qty > 0) {         selectedItems[selectedProduct] = qty;       } else {         delete selectedItems[selectedProduct];       }       closeNumpad();       updatePreview();     }      function updatePreview() {       let msg = "[오늘 네퓨어스토어 출고입니다]\n";       let hasItem = false;        for (const [prod, qty] of Object.entries(selectedItems)) {         if (qty > 0) {           msg += `${prod}  ${qty}박스\n`;           hasItem = true;         }       }        const lotVal = document.getElementById('lotInput').value.trim();       if (lotVal !== "") {         msg += `롯트번호 ${lotVal}\n`;
-
-      }
-
-
-
-      const previewElem = document.getElementById('previewText');
-
-      previewElem.textContent = hasItem || lotVal !== "" ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
-
-    }
-
-
-
-    function shareToKakao() {
-
-      const textToShare = document.getElementById('previewText').textContent;
-
-      if (navigator.share) {
-
-        navigator.share({
-
-          title: '네퓨어스토어 출고 안내',
-
-          text: textToShare
-
-        }).catch(() => {});
-
-      } else {
-
-        copyText();
-
-      }
-
-    }
-
-
-
-    function copyText() {
-
-      const textToCopy = document.getElementById('previewText').textContent;
-
-      navigator.clipboard.writeText(textToCopy).then(() => {
-
-        showToast("클립보드에 복사되었습니다!");
-
-      }).catch(() => {
-
-        showToast("복사 실패했습니다.");
-
-      });
-
-    }
-
-
-
-    function resetAll() {
-
-      for (const key in selectedItems) {
-
-        delete selectedItems[key];
-
-      }
-
-      document.getElementById('lotInput').value = '';
-
-      updatePreview();
-
-      showToast("내역이 초기화되었습니다.");
-
-    }
-
-
-
-    function showToast(msg) {
-
-      const toast = document.getElementById('toast');
-
-      toast.textContent = msg;
-
-      toast.style.display = 'block';
-
-      setTimeout(() => { toast.style.display = 'none'; }, 2000);
-
-    }
-
-
-
-    document.getElementById('lotInput').addEventListener('input', updatePreview);
-
-
-
-    window.onload = () => {
-
-      selectCategory('프리미엄');
-
-    };
-
-  </script>
-
-</body>
-
-</html>
-
+      font-size: 1.1rem
