@@ -326,32 +326,20 @@
       gap: 8px;
     }
 
-    .btn-kakao-share {
-      flex: 1.2;
-      background-color: #fee500;
-      color: #191919;
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
     .btn-copy {
-      flex: 1;
+      width: 100%;
       background-color: #333;
       color: white;
       border: none;
       border-radius: 10px;
-      padding: 12px;
-      font-size: 0.95rem;
+      padding: 14px;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
+    }
+
+    .btn-copy:active {
+      background-color: #111;
     }
 
     .toast {
@@ -428,7 +416,6 @@
     </div>
     <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
     <div class="bottom-btn-group">
-      <button class="btn-kakao-share" onclick="shareToKakao()">카카오톡 공유</button>
       <button class="btn-copy" onclick="copyText()">복사하기</button>
     </div>
   </div>
@@ -604,18 +591,6 @@
       const previewElem = document.getElementById('previewText');
       const hasLot = isLotVisible && lotVal !== "";
       previewElem.textContent = hasItem || hasLot ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
-    }
-
-    function shareToKakao() {
-      const textToShare = document.getElementById('previewText').textContent;
-      if (navigator.share) {
-        navigator.share({
-          title: '네퓨어스토어 출고 안내',
-          text: textToShare
-        }).catch(() => {});
-      } else {
-        copyText();
-      }
     }
 
     function copyText() {
