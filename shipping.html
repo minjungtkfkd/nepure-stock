@@ -271,7 +271,7 @@
     }
 
     .bottom-fixed-panel {
-      position: fixed;
+      position: fixed; 말
       bottom: 0;
       left: 0; right: 0;
       background: #ffffff;
@@ -313,8 +313,9 @@
       line-height: 1.4;
       color: #000;
       min-height: 8.5em;
-      max-height: 180px;
-      overflow-y: auto;
+      max-height: 160px;
+      overflow-y: auto; /* 스크롤바 활성화 */
+      -webkit-overflow-scrolling: touch;
       white-space: pre-wrap;
       margin-bottom: 10px;
       font-weight: 500;
@@ -462,9 +463,8 @@
     let selectedCategory = "프리미엄";
     let selectedProduct = "";
     let currentInputVal = "";
-    
-    // 입력된 순서(품목 또는 롯트번호)를 그대로 기록하는 배열
     let entryList = [];
+    let currentLotValue = ""; // 완성된 롯트번호 임시 저장용
 
     function selectCategory(catName) {
       selectedCategory = catName;
@@ -527,7 +527,6 @@
 
     function openNumpad(productFullName) {
       selectedProduct = productFullName;
-      // 기존에 입력된 수량이 있다면 가져옴 (없으면 빈값)
       let existingQty = "";
       for (let item of entryList) {
         if (item.type === 'product' && item.name === productFullName) {
@@ -570,20 +569,15 @@
 
     function confirmQuantity() {
       const qty = parseInt(currentInputVal, 10);
-      
-      // 이미 리스트에 있는 상품인지 확인
       const existingIndex = entryList.findIndex(item => item.type === 'product' && item.name === selectedProduct);
       
       if (!isNaN(qty) && qty > 0) {
         if (existingIndex > -1) {
-          // 이미 있으면 수량만 업데이트하고 순서는 유지
           entryList[existingIndex].qty = qty;
         } else {
-          // 새로 입력한 품목이므로 리스트 맨 마지막(지금 시점)에 추가
           entryList.push({ type: 'product', name: selectedProduct, qty: qty });
         }
       } else {
-        // 수량이 없거나 지워진 경우 해당 품목 삭제
         if (existingIndex > -1) {
           entryList.splice(existingIndex, 1);
         }
@@ -593,7 +587,7 @@
       updatePreview();
     }
 
-    // 롯트번호 입력 처리 (입력하는 순간의 순서대로 리스트에 추가)
+    // 롯트번호 입력 처리
     function formatLotInput(e) {
       let raw = e.target.value.replace(/[^0-9]/g, '');
       if (raw.length > 12) raw = raw.slice(0, 12);
@@ -617,48 +611,50 @@
       }
 
       e.target.value = formatted;
+      currentLotValue = formatted;
+    }
 
-      // 기존 롯트번호가 entryList에 있는지 확인
-      const lotIndex = entryList.findIndex(item => item.type === 'lot');
-
-      if (formatted.trim() !== "") {
-        if (lotIndex > -1) {
-          // 이미 존재하면 내용만 갱신
-          entryList[lotIndex].value = formatted;
-        } else {
-          // 새로 입력된 롯트번호이므로 현재 순서(맨 뒤)에 추가
-          entryList.push({ type: 'lot', value: formatted });
+    // 롯트번호 입력이 끝나고 포커스가 해제(블러)되거나 엔터를 칠 때 리스트에 확정 반영 후 입력창 비우기
+    function commitLotInput() {
+      if (currentLotValue.trim() !== "") {
+        const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
+        if (isLotVisible) {
+          entryList.push({ type: 'lot', value: currentLotValue });
         }
-      } else {
-        // 입력창이 비워지면 리스트에서 제거
-        if (lotIndex > -1) {
-          entryList.splice(lotIndex, 1);
-        }
+        currentLotValue = "";
+        document.getElementById('lotInput').value = "";
+        updatePreview();
       }
-
-      updatePreview();
     }
 
     function updatePreview() {
       let msg = "[오늘 네퓨어스토어 출고입니다]\n";
       let hasContent = false;
 
-      // 사용자가 조작하고 입력한 순서(entryList) 그대로 출력
       entryList.forEach(item => {
         if (item.type === 'product' && item.qty > 0) {
           msg += `${item.name}  ${item.qty}박스\n`;
           hasContent = true;
         } else if (item.type === 'lot' && item.value) {
-          const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
-          if (isLotVisible) {
-            msg += `롯트번호 ${item.value}\n`;
-            hasContent = true;
-          }
+          msg += `롯트번호 ${item.value}\n`;
+          hasContent = true;
         }
       });
 
+      // 현재 입력 중이지만 아직 확정되지 않은 롯트번호도 미리보기에 임시 표시
+      if (currentLotValue.trim() !== "") {
+        const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
+        if (isLotVisible) {
+          msg += `롯트번호 ${currentLotValue}\n`;
+          hasContent = true;
+        }
+      }
+
       const previewElem = document.getElementById('previewText');
       previewElem.textContent = hasContent ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
+      
+      // 내용이 추가될 때 스크롤이 자동으로 가장 아래로 내려가도록 처리
+      previewElem.scrollTop = previewElem.scrollHeight;
     }
 
     function copyText() {
@@ -672,6 +668,7 @@
 
     function resetAll() {
       entryList = [];
+      currentLotValue = "";
       document.getElementById('lotInput').value = '';
       updatePreview();
       showToast("내역이 초기화되었습니다.");
@@ -684,7 +681,15 @@
       setTimeout(() => { toast.style.display = 'none'; }, 2000);
     }
 
-    document.getElementById('lotInput').addEventListener('input', formatLotInput);
+    const lotInputElem = document.getElementById('lotInput');
+    lotInputElem.addEventListener('input', formatLotInput);
+    lotInputElem.addEventListener('blur', commitLotInput); // 입력창 바깥을 터치하거나 포커스 해제될 때 확정 및 초기화
+    lotInputElem.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        commitLotInput();
+        lotInputElem.blur();
+      }
+    });
 
     window.onload = () => {
       selectCategory('프리미엄');
