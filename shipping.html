@@ -276,7 +276,7 @@
       left: 0; right: 0;
       background: #ffffff;
       border-top: 2px solid #eef0f3;
-      box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+      box-shadow: -4px 16px rgba(0,0,0,0.1);
       padding: 12px 16px;
       z-index: 900;
       max-width: 500px;
@@ -305,8 +305,11 @@
       cursor: pointer;
     }
 
+    /* 노란색 미리보기 창을 직접 입력/수정이 가능한 textarea로 변경 */
     .chat-bubble-preview {
+      width: 100%;
       background-color: #fee500;
+      border: none;
       border-radius: 12px;
       padding: 10px 12px;
       font-size: 0.88rem;
@@ -316,11 +319,13 @@
       max-height: 160px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      resize: none;
+      outline: none;
       white-space: pre-wrap;
       margin-bottom: 10px;
       font-weight: 500;
+      font-family: inherit;
       user-select: text;
-      cursor: pointer; /* 클릭 가능한 느낌을 주도록 커서 변경 */
     }
 
     .bottom-btn-group {
@@ -416,8 +421,8 @@
       <span class="panel-title">💬 출고 메시지 미리보기</span>
       <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
     </div>
-    <!-- 노란색 미리보기 창을 터치하면 프롬프트가 떠서 백스페이스 등으로 수정/삭제 가능 -->
-    <div class="chat-bubble-preview" id="previewText" onclick="editPreviewViaPrompt()">[오늘 네퓨어스토어 출고입니다]</div>
+    <!-- 노란색 창을 직접 수정 가능한 textarea로 변경 -->
+    <textarea class="chat-bubble-preview" id="previewText" oninput="handleCustomEdit(this.value)">[오늘 네퓨어스토어 출고입니다]</textarea>
     <div class="bottom-btn-group">
       <button class="btn-copy" onclick="copyText()">복사하기</button>
     </div>
@@ -467,6 +472,7 @@
     let currentInputVal = "";
     let entryList = [];
     let currentLotValue = "";
+    let isCustomEdited = false; // 사용자가 직접 텍스트를 수정했는지 여부
 
     function selectCategory(catName) {
       selectedCategory = catName;
@@ -569,6 +575,7 @@
         return;
       }
 
+      isCustomEdited = false; // 버튼 조작 시 자동 생성 모드로 복귀
       const existingIndex = entryList.findIndex(item => item.type === 'product' && item.name === selectedProduct);
       
       if (existingIndex > -1) {
@@ -611,6 +618,7 @@
       if (currentLotValue.trim() !== "") {
         const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
         if (isLotVisible) {
+          isCustomEdited = false;
           entryList.push({ type: 'lot', value: currentLotValue });
         }
         currentLotValue = "";
@@ -619,34 +627,22 @@
       }
     }
 
-    // 미리보기 노란창을 눌렀을 때 프롬프트를 띄워 내용을 직접 수정/삭제할 수 있는 기능
-    function editPreviewViaPrompt() {
-      const currentText = document.getElementById('previewText').textContent;
-      const userInput = prompt("출고 내용을 직접 수정하거나 백스페이스로 지울 수 있습니다:", currentText);
-      
-      if (userInput !== null) {
-        if (userInput.trim() === "" || userInput === "[오늘 네퓨어스토어 출고입니다]") {
-          resetAll();
-        } else {
-          // 사용자가 직접 텍스트를 수정했을 경우 내부 항목들을 비우고 자유 텍스트 모드로 반영
-          entryList = [{ type: 'custom', text: userInput }];
-          currentLotValue = "";
-          document.getElementById('lotInput').value = "";
-          const previewElem = document.getElementById('previewText');
-          previewElem.textContent = userInput;
-        }
-      }
+    // 사용자가 노란창 안에서 직접 키보드로 수정할 때 호출
+    function handleCustomEdit(val) {
+      isCustomEdited = true;
     }
 
     function updatePreview() {
+      const previewElem = document.getElementById('previewText');
+      
+      // 사용자가 직접 노란창을 수정 중일 때는 자동 갱신으로 덮어씌워지지 않도록 보호
+      if (isCustomEdited) return;
+
       let msg = "[오늘 네퓨어스토어 출고입니다]\n";
       let hasContent = false;
 
       entryList.forEach(item => {
-        if (item.type === 'custom') {
-          msg = item.text; // 커스텀 텍스트인 경우 그대로 사용
-          hasContent = true;
-        } else if (item.type === 'product' && item.qty > 0) {
+        if (item.type === 'product' && item.qty > 0) {
           msg += `${item.name}  ${item.qty}박스\n`;
           hasContent = true;
         } else if (item.type === 'lot' && item.value) {
@@ -663,13 +659,12 @@
         }
       }
 
-      const previewElem = document.getElementById('previewText');
-      previewElem.textContent = hasContent ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
+      previewElem.value = hasContent ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
       previewElem.scrollTop = previewElem.scrollHeight;
     }
 
     function copyText() {
-      const textToCopy = document.getElementById('previewText').textContent;
+      const textToCopy = document.getElementById('previewText').value;
       navigator.clipboard.writeText(textToCopy).then(() => {
         showToast("클립보드에 복사되었습니다!");
       }).catch(() => {
@@ -680,6 +675,7 @@
     function resetAll() {
       entryList = [];
       currentLotValue = "";
+      isCustomEdited = false;
       document.getElementById('lotInput').value = '';
       updatePreview();
       showToast("내역이 초기화되었습니다.");
