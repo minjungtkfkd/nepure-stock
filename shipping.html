@@ -271,7 +271,7 @@
     }
 
     .bottom-fixed-panel {
-      position: fixed; 말
+      position: fixed;
       bottom: 0;
       left: 0; right: 0;
       background: #ffffff;
@@ -314,7 +314,7 @@
       color: #000;
       min-height: 8.5em;
       max-height: 160px;
-      overflow-y: auto; /* 스크롤바 활성화 */
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       white-space: pre-wrap;
       margin-bottom: 10px;
@@ -464,7 +464,7 @@
     let selectedProduct = "";
     let currentInputVal = "";
     let entryList = [];
-    let currentLotValue = ""; // 완성된 롯트번호 임시 저장용
+    let currentLotValue = "";
 
     function selectCategory(catName) {
       selectedCategory = catName;
@@ -527,14 +527,8 @@
 
     function openNumpad(productFullName) {
       selectedProduct = productFullName;
-      let existingQty = "";
-      for (let item of entryList) {
-        if (item.type === 'product' && item.name === productFullName) {
-          existingQty = String(item.qty);
-          break;
-        }
-      }
-      currentInputVal = existingQty;
+      // 넘패드를 열 때는 새로 입력할 수 있도록 빈값으로 시작 (기존 수량에 누적되도록 수정)
+      currentInputVal = "";
       document.getElementById('modalProductName').textContent = productFullName;
       updateNumpadDisplay();
       document.getElementById('numpadModal').classList.add('open');
@@ -568,19 +562,21 @@
     }
 
     function confirmQuantity() {
-      const qty = parseInt(currentInputVal, 10);
+      const addQty = parseInt(currentInputVal, 10);
+      if (isNaN(addQty) || addQty <= 0) {
+        closeNumpad();
+        return;
+      }
+
+      // 이미 리스트에 동일 상품이 있는지 확인
       const existingIndex = entryList.findIndex(item => item.type === 'product' && item.name === selectedProduct);
       
-      if (!isNaN(qty) && qty > 0) {
-        if (existingIndex > -1) {
-          entryList[existingIndex].qty = qty;
-        } else {
-          entryList.push({ type: 'product', name: selectedProduct, qty: qty });
-        }
+      if (existingIndex > -1) {
+        // 기존 수량에 새로 입력한 수량을 더함 (덧셈 누적)
+        entryList[existingIndex].qty += addQty;
       } else {
-        if (existingIndex > -1) {
-          entryList.splice(existingIndex, 1);
-        }
+        // 새로 추가
+        entryList.push({ type: 'product', name: selectedProduct, qty: addQty });
       }
 
       closeNumpad();
@@ -614,7 +610,6 @@
       currentLotValue = formatted;
     }
 
-    // 롯트번호 입력이 끝나고 포커스가 해제(블러)되거나 엔터를 칠 때 리스트에 확정 반영 후 입력창 비우기
     function commitLotInput() {
       if (currentLotValue.trim() !== "") {
         const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
@@ -641,7 +636,6 @@
         }
       });
 
-      // 현재 입력 중이지만 아직 확정되지 않은 롯트번호도 미리보기에 임시 표시
       if (currentLotValue.trim() !== "") {
         const isLotVisible = selectedCategory !== '방진마스크' && selectedCategory !== '1급/2급';
         if (isLotVisible) {
@@ -652,8 +646,6 @@
 
       const previewElem = document.getElementById('previewText');
       previewElem.textContent = hasContent ? msg.trim() : "[오늘 네퓨어스토어 출고입니다]";
-      
-      // 내용이 추가될 때 스크롤이 자동으로 가장 아래로 내려가도록 처리
       previewElem.scrollTop = previewElem.scrollHeight;
     }
 
@@ -683,7 +675,7 @@
 
     const lotInputElem = document.getElementById('lotInput');
     lotInputElem.addEventListener('input', formatLotInput);
-    lotInputElem.addEventListener('blur', commitLotInput); // 입력창 바깥을 터치하거나 포커스 해제될 때 확정 및 초기화
+    lotInputElem.addEventListener('blur', commitLotInput);
     lotInputElem.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         commitLotInput();
