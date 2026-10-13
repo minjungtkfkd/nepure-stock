@@ -320,6 +320,7 @@
       margin-bottom: 10px;
       font-weight: 500;
       user-select: text;
+      cursor: pointer; /* 클릭 가능한 느낌을 주도록 커서 변경 */
     }
 
     .bottom-btn-group {
@@ -415,7 +416,8 @@
       <span class="panel-title">💬 출고 메시지 미리보기</span>
       <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="chat-bubble-preview" id="previewText">[오늘 네퓨어스토어 출고입니다]</div>
+    <!-- 노란색 미리보기 창을 터치하면 프롬프트가 떠서 백스페이스 등으로 수정/삭제 가능 -->
+    <div class="chat-bubble-preview" id="previewText" onclick="editPreviewViaPrompt()">[오늘 네퓨어스토어 출고입니다]</div>
     <div class="bottom-btn-group">
       <button class="btn-copy" onclick="copyText()">복사하기</button>
     </div>
@@ -527,7 +529,6 @@
 
     function openNumpad(productFullName) {
       selectedProduct = productFullName;
-      // 넘패드를 열 때는 새로 입력할 수 있도록 빈값으로 시작 (기존 수량에 누적되도록 수정)
       currentInputVal = "";
       document.getElementById('modalProductName').textContent = productFullName;
       updateNumpadDisplay();
@@ -568,14 +569,11 @@
         return;
       }
 
-      // 이미 리스트에 동일 상품이 있는지 확인
       const existingIndex = entryList.findIndex(item => item.type === 'product' && item.name === selectedProduct);
       
       if (existingIndex > -1) {
-        // 기존 수량에 새로 입력한 수량을 더함 (덧셈 누적)
         entryList[existingIndex].qty += addQty;
       } else {
-        // 새로 추가
         entryList.push({ type: 'product', name: selectedProduct, qty: addQty });
       }
 
@@ -583,7 +581,6 @@
       updatePreview();
     }
 
-    // 롯트번호 입력 처리
     function formatLotInput(e) {
       let raw = e.target.value.replace(/[^0-9]/g, '');
       if (raw.length > 12) raw = raw.slice(0, 12);
@@ -622,12 +619,34 @@
       }
     }
 
+    // 미리보기 노란창을 눌렀을 때 프롬프트를 띄워 내용을 직접 수정/삭제할 수 있는 기능
+    function editPreviewViaPrompt() {
+      const currentText = document.getElementById('previewText').textContent;
+      const userInput = prompt("출고 내용을 직접 수정하거나 백스페이스로 지울 수 있습니다:", currentText);
+      
+      if (userInput !== null) {
+        if (userInput.trim() === "" || userInput === "[오늘 네퓨어스토어 출고입니다]") {
+          resetAll();
+        } else {
+          // 사용자가 직접 텍스트를 수정했을 경우 내부 항목들을 비우고 자유 텍스트 모드로 반영
+          entryList = [{ type: 'custom', text: userInput }];
+          currentLotValue = "";
+          document.getElementById('lotInput').value = "";
+          const previewElem = document.getElementById('previewText');
+          previewElem.textContent = userInput;
+        }
+      }
+    }
+
     function updatePreview() {
       let msg = "[오늘 네퓨어스토어 출고입니다]\n";
       let hasContent = false;
 
       entryList.forEach(item => {
-        if (item.type === 'product' && item.qty > 0) {
+        if (item.type === 'custom') {
+          msg = item.text; // 커스텀 텍스트인 경우 그대로 사용
+          hasContent = true;
+        } else if (item.type === 'product' && item.qty > 0) {
           msg += `${item.name}  ${item.qty}박스\n`;
           hasContent = true;
         } else if (item.type === 'lot' && item.value) {
