@@ -312,7 +312,7 @@
       font-size: 0.88rem;
       line-height: 1.4;
       color: #000;
-      min-height: 8.5em; /* 5줄 정도가 보이도록 높이 확대 */
+      min-height: 8.5em; /* 5줄 정도 보이도록 높이 유지 */
       max-height: 180px;
       overflow-y: auto;
       white-space: pre-wrap;
@@ -569,7 +569,7 @@
       updatePreview();
     }
 
-    // 롯트번호 숫자만 입력받아 자동 포맷팅 적용 함수
+    // 롯트번호 숫자 입력 포맷팅 (일(day) 자릿수 모자랄 때 2자리로 자동 채우기 보완)
     function formatLotInput(e) {
       let raw = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
       if (raw.length > 12) raw = raw.slice(0, 12); // 최대 12자리 제한
@@ -590,7 +590,10 @@
       }
       if (raw.length >= 11) {
         formatted += '월' + raw.substring(10, 12) + '일까지'; // 마지막 2자리 (일)
-      } else if (raw.length > 10) {
+      } else if (raw.length === 10) {
+        // 일 자리가 1자리만 입력된 경우 앞에 0을 붙여서 2자리로 채움
+        formatted += '월0' + raw.substring(9, 10) + '일까지';
+      } else if (raw.length > 8) {
         formatted += '월' + raw.substring(10) + '일까지';
       }
 
